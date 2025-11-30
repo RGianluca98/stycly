@@ -10,57 +10,57 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             
-            <h1>Thank You!</h1>
-            <p class="confirmation-message">Your rental request has been submitted successfully.</p>
-            
+            <h1>Grazie!</h1>
+            <p class="confirmation-message">La tua richiesta di noleggio è stata inviata con successo.</p>
+
             <div class="order-details">
-                <h2>Order #{{ order.id }}</h2>
-                
+                <h2>Ordine #{{ order.id }}</h2>
+
                 <div class="detail-row">
-                    <span class="detail-label">Name:</span>
+                    <span class="detail-label">Nome:</span>
                     <span class="detail-value">{{ order.name }}</span>
                 </div>
-                
+
                 <div class="detail-row">
                     <span class="detail-label">Email:</span>
                     <span class="detail-value">{{ order.email }}</span>
                 </div>
-                
+
                 <div class="detail-row">
-                    <span class="detail-label">Rental Period:</span>
-                    <span class="detail-value">{{ order.start_date.strftime('%B %d, %Y') }} - {{ order.end_date.strftime('%B %d, %Y') }}</span>
+                    <span class="detail-label">Periodo di Noleggio:</span>
+                    <span class="detail-value">{{ order.start_date.strftime('%d %B %Y') }} - {{ order.end_date.strftime('%d %B %Y') }}</span>
                 </div>
-                
+
                 <div class="detail-row">
-                    <span class="detail-label">Total Days:</span>
-                    <span class="detail-value">{{ order.get_total_days() }} days</span>
+                    <span class="detail-label">Giorni Totali:</span>
+                    <span class="detail-value">{{ order.get_total_days() }} giorni</span>
                 </div>
-                
-                <h3>Items Requested:</h3>
+
+                <h3>Articoli Richiesti:</h3>
                 <div class="order-items">
                     {% for item in order.items %}
                     <div class="order-item">
                         <span>{{ item.item.title }}</span>
-                        <span>Qty: {{ item.quantity }} × €{{ item.daily_price }}/day</span>
+                        <span>Qta: {{ item.quantity }} × €{{ item.daily_price }}/giorno</span>
                     </div>
                     {% endfor %}
                 </div>
-                
+
                 <div class="order-total">
-                    <span>Estimated Total:</span>
+                    <span>Totale Stimato:</span>
                     <span class="total-price">€{{ "%.2f"|format(order.get_total_price()) }}</span>
                 </div>
             </div>
-            
+
             <div class="confirmation-info">
-                <p><i class="fas fa-envelope"></i> A confirmation email has been sent to <strong>{{ order.email }}</strong></p>
-                <p><i class="fas fa-clock"></i> We'll review your request and contact you within 24 hours with availability confirmation and final pricing.</p>
+                <p><i class="fas fa-envelope"></i> Un'email di conferma è stata inviata a <strong>{{ order.email }}</strong></p>
+                <p><i class="fas fa-clock"></i> Esamineremo la tua richiesta e ti contatteremo entro 24 ore con la conferma della disponibilità e il prezzo finale.</p>
             </div>
-            
+
             <div class="confirmation-actions">
-                <a href="{{ url_for('main.index') }}" class="btn btn-accent">Back to Home</a>
+                <a href="{{ url_for('main.index') }}" class="btn btn-accent">Torna alla Home</a>
                 {% if session.user_id %}
-                <a href="{{ url_for('main.index') }}#wardrobe" class="btn btn-secondary">View My Wardrobe</a>
+                <a href="{{ url_for('main.index') }}#wardrobe" class="btn btn-secondary">Visualizza il Mio Guardaroba</a>
                 {% endif %}
             </div>
         </div>

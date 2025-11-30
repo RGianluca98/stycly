@@ -39,25 +39,26 @@ class User(db.Model):
 class WardrobeItem(db.Model):
     """Wardrobe item model - clothes available for rent"""
     __tablename__ = 'wardrobe_items'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
-    category = db.Column(db.String(50))  # dress, suit, casual, formal, etc.
-    size = db.Column(db.String(20))  # XS, S, M, L, XL, etc.
+    destination = db.Column(db.String(50))  # Bambino, Bambina, Stycly props, Stycly accessories, Stycly Vintage
+    category = db.Column(db.String(50))  # Dynamic based on destination
+    size = db.Column(db.String(20))  # Dynamic based on category
     age_range = db.Column(db.String(50))  # 0-6m, 6-12m, 1-2y, etc.
     color = db.Column(db.String(50))
-    daily_price = db.Column(db.Float, nullable=False, default=0.0)
-    image_path = db.Column(db.String(255))
+    condition = db.Column(db.String(50))  # New, Like New, Very Good, Good, Acceptable, Vintage
+    image_paths = db.Column(db.Text)  # JSON array of image paths for multiple images
     stock = db.Column(db.Integer, default=1)
     is_public_for_rent = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relationships
     order_items = db.relationship('OrderItem', backref='item', lazy='dynamic')
-    
+
     def __repr__(self):
         return f'<WardrobeItem {self.title}>'
 
@@ -105,12 +106,11 @@ class Order(db.Model):
         """Calculate total rental days"""
         return (self.end_date - self.start_date).days + 1
     
-    def get_total_price(self):
-        """Calculate total estimated price"""
+    def get_item_count(self):
+        """Get total number of items in order"""
         total = 0
-        days = self.get_total_days()
         for item in self.items:
-            total += item.daily_price * item.quantity * days
+            total += item.quantity
         return total
     
     def __repr__(self):
@@ -120,12 +120,11 @@ class Order(db.Model):
 class OrderItem(db.Model):
     """Items in an order"""
     __tablename__ = 'order_items'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
     wardrobe_item_id = db.Column(db.Integer, db.ForeignKey('wardrobe_items.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
-    daily_price = db.Column(db.Float, nullable=False)  # Store price at time of order
-    
+
     def __repr__(self):
         return f'<OrderItem {self.id}>'

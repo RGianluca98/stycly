@@ -7,34 +7,34 @@
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Welcome Back</h1>
-                <p>Log in to access your wardrobe and rentals</p>
+                <h1>Bentornato</h1>
+                <p>Accedi per accedere al tuo guardaroba e ai noleggi</p>
             </div>
-            
+
             <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
                 <div class="form-group">
-                    <label for="email">Email Address</label>
+                    <label for="email">Indirizzo Email</label>
                     <input type="email" id="email" name="email" required autofocus>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" required>
                 </div>
-                
+
                 <div class="form-group checkbox-group">
                     <label>
                         <input type="checkbox" name="remember">
-                        <span>Remember me</span>
+                        <span>Ricordami</span>
                     </label>
                 </div>
-                
-                <button type="submit" class="btn btn-accent btn-full">Log In</button>
+
+                <button type="submit" class="btn btn-accent btn-full">Accedi</button>
             </form>
-            
+
             <div class="auth-footer">
-                <a href="{{ url_for('auth.forgot_password') }}">Forgot password?</a>
-                <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up</a></p>
+                <a href="{{ url_for('auth.forgot_password') }}">Password dimenticata?</a>
+                <p>Non hai un account? <a href="{{ url_for('auth.register') }}">Registrati</a></p>
             </div>
         </div>
     </div>

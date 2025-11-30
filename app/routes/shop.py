@@ -13,23 +13,33 @@ shop_bp = Blueprint('shop', __name__, url_prefix='/shop')
 @shop_bp.route('/products')
 def products():
     """Get all public products (for AJAX loading)"""
+    import json
     items = WardrobeItem.query.filter_by(is_public_for_rent=True).all()
-    
+
     products_data = []
     for item in items:
+        # Parse image_paths JSON array
+        image_paths = []
+        if item.image_paths:
+            try:
+                image_paths = json.loads(item.image_paths)
+            except:
+                pass
+
         products_data.append({
             'id': item.id,
             'title': item.title,
             'description': item.description,
+            'destination': item.destination,
             'category': item.category,
             'size': item.size,
             'age_range': item.age_range,
             'color': item.color,
-            'daily_price': item.daily_price,
-            'image_path': item.image_path or 'https://via.placeholder.com/300x400?text=No+Image',
+            'condition': item.condition,
+            'image_paths': image_paths,
             'stock': item.stock
         })
-    
+
     return jsonify(products_data)
 
 
@@ -150,29 +160,39 @@ def remove_from_cart():
 @shop_bp.route('/cart/get')
 def get_cart():
     """Get cart contents with item details"""
+    import json
     cart = session.get('cart', {})
-    
+
     if not cart:
         return jsonify({'items': [], 'total_items': 0})
-    
+
     cart_items = []
     total_items = 0
-    
+
     for item_id_str, quantity in cart.items():
         item = WardrobeItem.query.get(int(item_id_str))
         if item:
+            # Get first image from image_paths JSON array
+            image_path = 'https://via.placeholder.com/100x100?text=No+Image'
+            if item.image_paths:
+                try:
+                    image_paths = json.loads(item.image_paths)
+                    if image_paths and len(image_paths) > 0:
+                        image_path = image_paths[0]
+                except:
+                    pass
+
             cart_items.append({
                 'id': item.id,
                 'title': item.title,
                 'size': item.size,
                 'age_range': item.age_range,
-                'daily_price': item.daily_price,
-                'image_path': item.image_path or 'https://via.placeholder.com/100x100?text=No+Image',
+                'image_path': image_path,
                 'quantity': quantity,
                 'stock': item.stock
             })
             total_items += quantity
-    
+
     return jsonify({
         'items': cart_items,
         'total_items': total_items

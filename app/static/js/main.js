@@ -141,9 +141,9 @@ function fetchLastInsertTime() {
             const lastInsertInfo = document.getElementById('lastInsertInfo');
             if (lastInsertInfo) {
                 if (data.last_insert) {
-                    lastInsertInfo.innerHTML = `<i class="fas fa-clock"></i><span>Last item added: ${data.last_insert}</span>`;
+                    lastInsertInfo.innerHTML = `<i class="fas fa-clock"></i><span>Ultimo articolo aggiunto: ${data.last_insert}</span>`;
                 } else {
-                    lastInsertInfo.innerHTML = '<i class="fas fa-clock"></i><span>No items added yet</span>';
+                    lastInsertInfo.innerHTML = '<i class="fas fa-clock"></i><span>Nessun articolo aggiunto ancora</span>';
                 }
             }
         })
@@ -188,8 +188,8 @@ function loadCartItems() {
                             <img src="/static/${item.image_path}" alt="${item.title}">
                             <div class="cart-item-info">
                                 <h4>${item.title}</h4>
-                                <p>Size: ${item.size} | Age: ${item.age_range}</p>
-                                <p class="cart-item-price">€${item.daily_price}/day</p>
+                                <p>Taglia: ${item.size}</p>
+                                <p class="cart-item-price">€${item.daily_price}/giorno</p>
                             </div>
                             <div class="cart-item-controls">
                                 <button onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})">-</button>
@@ -205,7 +205,7 @@ function loadCartItems() {
                 html += '</div>';
                 cartItems.innerHTML = html;
             } else {
-                cartItems.innerHTML = '<p style="text-align: center; padding: 2rem;">Your cart is empty</p>';
+                cartItems.innerHTML = '<p style="text-align: center; padding: 2rem;">Il tuo carrello è vuoto</p>';
             }
         })
         .catch(err => console.error('Error loading cart:', err));
@@ -250,7 +250,7 @@ function proceedToRental() {
 
 // Wardrobe functions
 function confirmDeleteWardrobe() {
-    if (confirm('Are you sure you want to delete all items from your wardrobe? This action cannot be undone.')) {
+    if (confirm('Sei sicuro di voler eliminare tutti gli articoli dal tuo guardaroba? Questa azione non può essere annullata.')) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '/wardrobe/delete-all';
@@ -260,7 +260,7 @@ function confirmDeleteWardrobe() {
 }
 
 function confirmDeleteAccount() {
-    if (confirm('Are you sure you want to delete your account? This will permanently delete all your data including wardrobe items and order history. This action cannot be undone.')) {
+    if (confirm('Sei sicuro di voler eliminare il tuo account? Questo eliminerà definitivamente tutti i tuoi dati, inclusi gli articoli del guardaroba e la cronologia degli ordini. Questa azione non può essere annullata.')) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '/wardrobe/delete-account';

@@ -26,20 +26,20 @@ def register():
         errors = []
         
         if not name or len(name) < 2:
-            errors.append('Name must be at least 2 characters long.')
-        
+            errors.append('Il nome deve contenere almeno 2 caratteri.')
+
         if not email or '@' not in email:
-            errors.append('Please provide a valid email address.')
-        
+            errors.append('Fornisci un indirizzo email valido.')
+
         if not password or len(password) < 8:
-            errors.append('Password must be at least 8 characters long.')
-        
+            errors.append('La password deve contenere almeno 8 caratteri.')
+
         if password != confirm_password:
-            errors.append('Passwords do not match.')
-        
+            errors.append('Le password non corrispondono.')
+
         # Check if email already exists
         if User.query.filter_by(email=email).first():
-            errors.append('This email is already registered.')
+            errors.append('Questa email è già registrata.')
         
         if errors:
             for error in errors:
@@ -54,12 +54,12 @@ def register():
             db.session.add(user)
             db.session.commit()
             
-            flash('Registration successful! Please log in.', 'success')
+            flash('Registrazione completata con successo! Effettua il login.', 'success')
             return redirect(url_for('auth.login'))
-        
+
         except Exception as e:
             db.session.rollback()
-            flash('An error occurred during registration. Please try again.', 'danger')
+            flash('Si è verificato un errore durante la registrazione. Riprova.', 'danger')
             return render_template('register.html', name=name, email=email)
     
     return render_template('register.html')
@@ -89,16 +89,16 @@ def login():
             if remember:
                 session.permanent = True
             
-            flash(f'Welcome back, {user.name}!', 'success')
-            
+            flash(f'Bentornato, {user.name}!', 'success')
+
             # Redirect to next page or home
             next_page = request.args.get('next')
             if next_page and next_page.startswith('/'):
                 return redirect(next_page)
             return redirect(url_for('main.index'))
-        
+
         else:
-            flash('Invalid email or password.', 'danger')
+            flash('Email o password non validi.', 'danger')
     
     return render_template('login.html')
 
@@ -107,7 +107,7 @@ def login():
 def logout():
     """User logout"""
     session.clear()
-    flash('You have been logged out successfully.', 'info')
+    flash('Logout effettuato con successo.', 'info')
     return redirect(url_for('main.index'))
 
 
@@ -137,7 +137,7 @@ def forgot_password():
             send_password_reset_email(user, reset_url)
         
         # Always show success message (don't reveal if email exists)
-        flash('If that email is registered, you will receive a password reset link shortly.', 'info')
+        flash('Se questa email è registrata, riceverai a breve un link per reimpostare la password.', 'info')
         return redirect(url_for('auth.login'))
     
     return render_template('forgot_password.html')
@@ -149,7 +149,7 @@ def reset_password(token):
     reset_token = PasswordResetToken.query.filter_by(token=token).first()
     
     if not reset_token or not reset_token.is_valid():
-        flash('Invalid or expired password reset link.', 'danger')
+        flash('Link di reimpostazione password non valido o scaduto.', 'danger')
         return redirect(url_for('auth.forgot_password'))
     
     if request.method == 'POST':
@@ -157,11 +157,11 @@ def reset_password(token):
         confirm_password = request.form.get('confirm_password', '')
         
         if not password or len(password) < 8:
-            flash('Password must be at least 8 characters long.', 'danger')
+            flash('La password deve contenere almeno 8 caratteri.', 'danger')
             return render_template('reset_password.html', token=token)
-        
+
         if password != confirm_password:
-            flash('Passwords do not match.', 'danger')
+            flash('Le password non corrispondono.', 'danger')
             return render_template('reset_password.html', token=token)
         
         # Update password
@@ -172,8 +172,8 @@ def reset_password(token):
         reset_token.used = True
         
         db.session.commit()
-        
-        flash('Your password has been reset successfully. Please log in.', 'success')
+
+        flash('La tua password è stata reimpostata con successo. Effettua il login.', 'success')
         return redirect(url_for('auth.login'))
     
     return render_template('reset_password.html', token=token)

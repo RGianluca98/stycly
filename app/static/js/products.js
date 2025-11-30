@@ -1,5 +1,6 @@
 // Products catalog functionality
 let allProducts = [];
+let productsData = [];
 
 document.addEventListener('DOMContentLoaded', function() {
     loadProducts();
@@ -7,12 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set up filters
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
-    const ageFilter = document.getElementById('ageFilter');
     const sizeFilter = document.getElementById('sizeFilter');
-    
+
     if (searchInput) searchInput.addEventListener('input', filterProducts);
     if (categoryFilter) categoryFilter.addEventListener('change', filterProducts);
-    if (ageFilter) ageFilter.addEventListener('change', filterProducts);
     if (sizeFilter) sizeFilter.addEventListener('change', filterProducts);
 });
 
@@ -21,12 +20,13 @@ function loadProducts() {
         .then(res => res.json())
         .then(products => {
             allProducts = products;
+            productsData = products;
             displayProducts(products);
         })
         .catch(err => {
             console.error('Error loading products:', err);
-            document.getElementById('productsGrid').innerHTML = 
-                '<p style="text-align: center; padding: 3rem;">Error loading products. Please try again later.</p>';
+            document.getElementById('productsGrid').innerHTML =
+                '<p style="text-align: center; padding: 3rem;">Errore nel caricamento dei prodotti. Riprova più tardi.</p>';
         });
 }
 
@@ -34,7 +34,7 @@ function displayProducts(products) {
     const grid = document.getElementById('productsGrid');
     
     if (products.length === 0) {
-        grid.innerHTML = '<p style="text-align: center; padding: 3rem; grid-column: 1/-1;">No products found matching your criteria.</p>';
+        grid.innerHTML = '<p style="text-align: center; padding: 3rem; grid-column: 1/-1;">Nessun prodotto trovato che corrisponde ai tuoi criteri.</p>';
         return;
     }
     
@@ -42,22 +42,24 @@ function displayProducts(products) {
     products.forEach(product => {
         html += `
             <div class="product-card">
-                <img src="/static/${product.image_path}" alt="${product.title}" class="product-image" 
-                     onerror="this.src='https://via.placeholder.com/300x400?text=No+Image'">
+                <div class="product-image-container">
+                    ${renderProductGallery(product)}
+                </div>
                 <div class="product-info">
-                    <h3 class="product-title">${product.title}</h3>
+                    <h3 class="product-title">${escapeHtml(product.title)}</h3>
                     <p class="product-meta">
-                        ${product.size ? `Size: ${product.size}` : ''} 
-                        ${product.age_range ? `| Age: ${product.age_range}` : ''}
+                        ${product.size ? `Taglia: ${escapeHtml(product.size)}` : ''}
                     </p>
-                    ${product.description ? `<p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">${product.description.substring(0, 100)}...</p>` : ''}
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-                        ${product.category ? `<span style="background: var(--col-secondario); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">${product.category}</span>` : '<span></span>'}
-                        ${product.color ? `<span style="font-size: 0.9rem; color: #666;">Color: ${product.color}</span>` : ''}
+                    ${product.description ? `<p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">${escapeHtml(product.description)}</p>` : ''}
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; gap: 0.5rem; flex-wrap: wrap;">
+                        ${product.destination ? `<span style="background: var(--col-accent); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">${escapeHtml(product.destination)}</span>` : ''}
+                        ${product.category ? `<span style="background: var(--col-secondario); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">${escapeHtml(product.category)}</span>` : ''}
+                        ${product.color ? `<span style="font-size: 0.9rem; color: #666;">${escapeHtml(product.color)}</span>` : ''}
                     </div>
-                    <p class="product-price">€${product.daily_price.toFixed(2)}/day</p>
-                    <button class="btn btn-accent add-to-cart-btn" onclick="addToCart(${product.id})">
-                        <i class="fas fa-shopping-bag"></i> Add to Cart
+                    ${product.condition ? `<p style="font-size: 0.85rem; color: #888; margin-top: 0.5rem;">Condizione: ${escapeHtml(product.condition)}</p>` : ''}
+                    ${product.stock !== undefined ? `<p style="font-size: 0.85rem; color: ${product.stock > 0 ? '#28a745' : '#dc3545'}; margin-top: 0.25rem; font-weight: 600;">Disponibilità: ${product.stock}</p>` : ''}
+                    <button class="btn btn-accent add-to-cart-btn" onclick="addToCart(${product.id})" style="margin-top: 1rem;">
+                        <i class="fas fa-shopping-bag"></i> Richiedi Preventivo
                     </button>
                 </div>
             </div>
@@ -70,23 +72,21 @@ function displayProducts(products) {
 function filterProducts() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const category = document.getElementById('categoryFilter').value.toLowerCase();
-    const age = document.getElementById('ageFilter').value.toLowerCase();
     const size = document.getElementById('sizeFilter').value.toLowerCase();
-    
+
     const filtered = allProducts.filter(product => {
-        const matchesSearch = !searchTerm || 
+        const matchesSearch = !searchTerm ||
             product.title.toLowerCase().includes(searchTerm) ||
             (product.description && product.description.toLowerCase().includes(searchTerm)) ||
             (product.color && product.color.toLowerCase().includes(searchTerm)) ||
             (product.category && product.category.toLowerCase().includes(searchTerm));
-        
+
         const matchesCategory = !category || (product.category && product.category.toLowerCase() === category);
-        const matchesAge = !age || (product.age_range && product.age_range.toLowerCase() === age);
         const matchesSize = !size || (product.size && product.size.toLowerCase() === size);
-        
-        return matchesSearch && matchesCategory && matchesAge && matchesSize;
+
+        return matchesSearch && matchesCategory && matchesSize;
     });
-    
+
     displayProducts(filtered);
 }
 
@@ -100,15 +100,71 @@ function addToCart(itemId) {
     .then(data => {
         if (data.success) {
             updateCartBadge();
-            showNotification('Item added to cart!', 'success');
+            showNotification('Articolo aggiunto al carrello!', 'success');
         } else {
-            showNotification(data.message || 'Could not add item to cart', 'error');
+            showNotification(data.message || 'Impossibile aggiungere l\'articolo al carrello', 'error');
         }
     })
     .catch(err => {
         console.error('Error adding to cart:', err);
-        showNotification('Error adding to cart', 'error');
+        showNotification('Errore nell\'aggiunta al carrello', 'error');
     });
+}
+
+function renderProductGallery(product) {
+    if (!product.image_paths || product.image_paths.length === 0) {
+        return `<img src="https://via.placeholder.com/300x300?text=No+Image" alt="No image" class="product-image">`;
+    }
+
+    if (product.image_paths.length === 1) {
+        return `<img src="/static/${product.image_paths[0]}" alt="${escapeHtml(product.title)}" class="product-image">`;
+    }
+
+    // Multiple images - show first with gallery indicators
+    return `
+        <div class="wardrobe-item-gallery" data-item-id="product-${product.id}">
+            <img src="/static/${product.image_paths[0]}" alt="${escapeHtml(product.title)}" id="product-gallery-img-${product.id}" class="product-image">
+            <div class="gallery-indicators">
+                ${product.image_paths.map((_, index) =>
+                    `<span class="gallery-indicator ${index === 0 ? 'active' : ''}"
+                          onclick="changeProductGalleryImage(${product.id}, ${index})"></span>`
+                ).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function changeProductGalleryImage(productId, imageIndex) {
+    const product = productsData.find(p => p.id === productId);
+    if (!product || !product.image_paths || imageIndex >= product.image_paths.length) {
+        return;
+    }
+
+    // Update image
+    const imgElement = document.getElementById(`product-gallery-img-${productId}`);
+    if (imgElement) {
+        imgElement.src = `/static/${product.image_paths[imageIndex]}`;
+    }
+
+    // Update indicators
+    const gallery = document.querySelector(`[data-item-id="product-${productId}"]`);
+    if (gallery) {
+        const indicators = gallery.querySelectorAll('.gallery-indicator');
+        indicators.forEach((indicator, idx) => {
+            if (idx === imageIndex) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        });
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function showNotification(message, type) {
@@ -118,16 +174,16 @@ function showNotification(message, type) {
         <span>${message}</span>
         <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
     `;
-    
+
     let container = document.querySelector('.flash-container');
     if (!container) {
         container = document.createElement('div');
         container.className = 'flash-container';
         document.body.appendChild(container);
     }
-    
+
     container.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => notification.remove(), 300);

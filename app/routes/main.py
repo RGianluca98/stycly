@@ -24,7 +24,7 @@ def contact():
     message = request.form.get('message', '').strip()
     
     if not all([name, email, message]):
-        flash('Please fill in all fields.', 'danger')
+        flash('Compila tutti i campi.', 'danger')
         return render_template('index.html')
     
     # Send contact email
@@ -53,5 +53,5 @@ def contact():
     orders_email = current_app.config.get('ORDERS_EMAIL')
     send_email(orders_email, subject, html_body)
     
-    flash('Thank you for your message! We will get back to you soon.', 'success')
+    flash('Grazie per il tuo messaggio! Ti risponderemo presto.', 'success')
     return render_template('index.html')

@@ -20,7 +20,7 @@ def submit_order():
     cart = session.get('cart', {})
     
     if not cart:
-        flash('Your cart is empty.', 'warning')
+        flash('Il tuo carrello è vuoto.', 'warning')
         return redirect(url_for('main.index') + '#products')
     
     # Get form data
@@ -36,13 +36,13 @@ def submit_order():
     errors = []
     
     if not name:
-        errors.append('Full name is required.')
-    
+        errors.append('Il nome completo è obbligatorio.')
+
     if not email or '@' not in email:
-        errors.append('Valid email is required.')
-    
+        errors.append('È richiesta un\'email valida.')
+
     if not privacy_accepted:
-        errors.append('You must accept the privacy policy and terms.')
+        errors.append('Devi accettare la privacy policy e i termini.')
     
     # Parse dates
     try:
@@ -50,13 +50,13 @@ def submit_order():
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
         
         if start_date < datetime.utcnow().date():
-            errors.append('Start date cannot be in the past.')
-        
+            errors.append('La data di inizio non può essere nel passato.')
+
         if end_date < start_date:
-            errors.append('End date must be after start date.')
-        
+            errors.append('La data di fine deve essere successiva alla data di inizio.')
+
     except ValueError:
-        errors.append('Invalid dates provided.')
+        errors.append('Date non valide.')
         start_date = None
         end_date = None
     
@@ -106,12 +106,12 @@ def submit_order():
         session['cart'] = {}
         session.modified = True
         
-        flash('Thank you! Your rental request has been submitted. We will contact you soon with a quote.', 'success')
+        flash('Grazie! La tua richiesta di noleggio è stata inviata. Ti contatteremo presto con un preventivo.', 'success')
         return redirect(url_for('orders.confirmation', order_id=order.id))
-    
+
     except Exception as e:
         db.session.rollback()
-        flash('An error occurred while processing your request. Please try again.', 'danger')
+        flash('Si è verificato un errore durante l\'elaborazione della richiesta. Riprova.', 'danger')
         return redirect(url_for('main.index') + '#rental-request')
 
 
@@ -124,7 +124,7 @@ def confirmation(order_id):
     user_id = session.get('user_id')
     if order.user_id and order.user_id != user_id:
         # Only allow viewing if it's the user's order or a guest order
-        flash('Order not found.', 'danger')
+        flash('Ordine non trovato.', 'danger')
         return redirect(url_for('main.index'))
     
     return render_template('order_confirmation.html', order=order)
